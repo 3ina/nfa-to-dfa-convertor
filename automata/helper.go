@@ -19,3 +19,22 @@ func contains(states []*State, target *State) bool {
 
 	return false
 }
+
+func unionSets(a, b []*State) []*State {
+	unique := make(map[*State]bool)
+	for _, state := range a {
+		unique[state] = true
+	}
+
+	for _, state := range b {
+		unique[state] = true
+	}
+
+	var result []*State
+
+	for state := range unique {
+		result = append(result, state)
+	}
+
+	return result
+}
