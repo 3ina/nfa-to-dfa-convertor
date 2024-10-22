@@ -37,3 +37,15 @@ func (nfa *NFA) epsilonClosure(states []*State) []*State {
 
 	return closure
 }
+
+func (nfa *NFA) move(states []*State, input rune) []*State {
+	result := make([]*State, 0)
+	for _, state := range states {
+		for _, t := range nfa.Transitions {
+			if t.From == state && t.Input == input {
+				result = append(result, t.to...)
+			}
+		}
+	}
+	return result
+}
