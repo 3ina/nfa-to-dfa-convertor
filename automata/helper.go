@@ -50,3 +50,15 @@ func stateSetName(states []*State) string {
 	sort.Strings(names)
 	return "{" + join(names, ",") + "}"
 }
+
+func join(strs []string, sep string) string {
+	result := ""
+	for i, s := range strs {
+		if i != 0 {
+			result += sep
+		}
+		result += s
+	}
+
+	return result
+}
