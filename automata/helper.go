@@ -1,5 +1,7 @@
 package automata
 
+import "sort"
+
 type State struct {
 	Name string
 }
@@ -37,4 +39,14 @@ func unionSets(a, b []*State) []*State {
 	}
 
 	return result
+}
+
+func stateSetName(states []*State) string {
+	names := []string{}
+
+	for _, state := range states {
+		names = append(names, state.Name)
+	}
+	sort.Strings(names)
+	return "{" + join(names, ",") + "}"
 }
