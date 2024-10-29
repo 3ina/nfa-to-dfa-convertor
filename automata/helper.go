@@ -62,3 +62,14 @@ func join(strs []string, sep string) string {
 
 	return result
 }
+
+func containsAny(a []*State, b []*State) bool {
+	for _, stateA := range a {
+		for _, stateB := range b {
+			if stateA == stateB {
+				return true
+			}
+		}
+	}
+	return false
+}
