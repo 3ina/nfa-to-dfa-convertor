@@ -24,7 +24,7 @@ func (nfa *NFA) epsilonClosure(states []*State) []*State {
 			closure = append(closure, state)
 			for _, t := range nfa.Transitions {
 				if t.From == state && t.Input == 'ε' {
-					for _, toState := range t.to {
+					for _, toState := range t.To {
 						if !visited[toState] {
 							stack = append(stack, toState)
 						}
@@ -43,7 +43,7 @@ func (nfa *NFA) move(states []*State, input rune) []*State {
 	for _, state := range states {
 		for _, t := range nfa.Transitions {
 			if t.From == state && t.Input == input {
-				result = append(result, t.to...)
+				result = append(result, t.To...)
 			}
 		}
 	}

@@ -9,7 +9,7 @@ type State struct {
 type Transition struct {
 	From  *State
 	Input rune
-	to    []*State
+	To    []*State
 }
 
 func contains(states []*State, target *State) bool {
