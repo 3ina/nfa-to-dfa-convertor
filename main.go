@@ -122,7 +122,7 @@ func main() {
 		SetTitle("Step 3: Define Transitions").
 		SetTitleAlign(tview.AlignLeft)
 
-	// form for start state
+	// page 4 for start state
 
 	formStart := tview.NewForm().
 		AddInputField("Start State", "", 20, nil, func(text string) {
@@ -144,6 +144,35 @@ func main() {
 
 	formStart.SetBorder(true).
 		SetTitle("Step 4: Define Start State").
+		SetTitleAlign(tview.AlignLeft)
+
+	// page 5 for Final States
+
+	formFinal := tview.NewForm().
+		AddInputField("Final States (comma-separated)", "", 30, nil, func(text string) {
+			finalStates = text
+		}).
+		AddButton("Next", func() {
+			if finalStates == "" {
+				showError(pages, "Please enter at least one final state.")
+				return
+			}
+			if checkDuplicates(finalStates) {
+				showError(pages, "Duplicate final states found. Please ensure all final states are unique.")
+				return
+			}
+			pages.SwitchToPage("Summary")
+		}).
+		AddButton("Back", func() {
+			pages.SwitchToPage("StartState")
+		}).
+		AddButton("Cancel", func() {
+			app.Stop()
+		})
+
+	formFinal.
+		SetBorder(true).
+		SetTitle("Step 5: Define Final States").
 		SetTitleAlign(tview.AlignLeft)
 }
 
