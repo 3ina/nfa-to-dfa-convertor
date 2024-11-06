@@ -69,6 +69,16 @@ func main() {
 
 }
 
+func showError(pages *tview.Pages, message string) {
+	modal := tview.NewModal().
+		SetText(message).
+		AddButtons([]string{"OK"}).
+		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+			pages.RemovePage("modal")
+		})
+	pages.AddPage("modal", modal, true, true)
+}
+
 func checkDuplicates(input string) bool {
 	seen := make(map[string]bool)
 	for _, item := range strings.Split(input, ",") {
