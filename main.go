@@ -95,6 +95,33 @@ func main() {
 		SetTitle("Step 2: Define Alphabet").
 		SetTitleAlign(tview.AlignLeft)
 
+	//Page 3: Transition Input
+	formTransitions := tview.NewForm().
+		AddInputField("Transitions (e.g., S0,a->S1; S0,ε->S2)", "", 50, nil, func(text string) {
+			transitions = text
+		}).
+		AddButton("Next", func() {
+			if transitions == "" {
+				showError(pages, "Please enter at least one transition.")
+				return
+			}
+			if hasDuplicateTransitions(transitions) {
+				showError(pages, "Duplicate transitions found. Please ensure all transitions are unique.")
+				return
+			}
+			pages.SwitchToPage("StartState")
+		}).
+		AddButton("Back", func() {
+			pages.SwitchToPage("Alphabet")
+		}).
+		AddButton("Cancel", func() {
+			app.Stop()
+		})
+	formTransitions.
+		SetBorder(true).
+		SetTitle("Step 3: Define Transitions").
+		SetTitleAlign(tview.AlignLeft)
+
 }
 
 func showError(pages *tview.Pages, message string) {
