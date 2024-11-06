@@ -1,32 +1,54 @@
 package main
 
 import (
-	"github.com/3ina/nfa-to-dfa-convertor/automata"
+	"strings"
 )
 
 func main() {
-	s0 := &automata.State{Name: "S0"}
-	s1 := &automata.State{Name: "S1"}
-	s2 := &automata.State{Name: "S2"}
-	s3 := &automata.State{Name: "S3"}
+	//s0 := &automata.State{Name: "S0"}
+	//s1 := &automata.State{Name: "S1"}
+	//s2 := &automata.State{Name: "S2"}
+	//s3 := &automata.State{Name: "S3"}
+	//s4 := &automata.State{Name: "S4"}
+	//s5 := &automata.State{Name: "S5"}
+	//s6 := &automata.State{Name: "S6"}
+	//s7 := &automata.State{Name: "S7"}
+	//s8 := &automata.State{Name: "S8"}
+	//
+	//nfa := automata.NFA{
+	//	States:   []*automata.State{s0, s1, s2, s3, s4, s5, s6, s7, s8},
+	//	Alphabet: []rune{'a', 'b'},
+	//	Transitions: []automata.Transition{
+	//		{From: s0, Input: 'ε', To: []*automata.State{s1, s7}},
+	//		{From: s1, Input: 'ε', To: []*automata.State{s2, s4}},
+	//		{From: s2, Input: 'a', To: []*automata.State{s3}},
+	//		{From: s4, Input: 'b', To: []*automata.State{s5}},
+	//		{From: s5, Input: 'ε', To: []*automata.State{s6}},
+	//		{From: s3, Input: 'ε', To: []*automata.State{s6}},
+	//		{From: s6, Input: 'ε', To: []*automata.State{s1, s7}},
+	//		{From: s7, Input: 'a', To: []*automata.State{s1, s8}},
+	//	},
+	//	StartState:  s0,
+	//	FinalStates: []*automata.State{s8},
+	//}
+	//
+	//dfa := nfa.ConvertToDfa()
+	//
+	//dfa.Print()
 
-	nfa := automata.NFA{
-		States:   []*automata.State{s0, s1, s2, s3},
-		Alphabet: []rune{'a', 'b'},
-		Transitions: []automata.Transition{
-			{From: s0, Input: 'ε', To: []*automata.State{s1, s2}},
-			{From: s1, Input: 'a', To: []*automata.State{s1}},
-			{From: s1, Input: 'b', To: []*automata.State{s1, s3}},
-			{From: s2, Input: 'a', To: []*automata.State{s2}},
-			{From: s2, Input: 'b', To: []*automata.State{s2}},
-			{From: s3, Input: 'a', To: []*automata.State{s3}},
-			{From: s3, Input: 'b', To: []*automata.State{s3}},
-		},
-		StartState:  s0,
-		FinalStates: []*automata.State{s3},
+	//var states, alphabet , transitions, startState,finalStates string
+
+	//pages := tview.NewPages()
+}
+
+func checkDuplicates(input string) bool {
+	seen := make(map[string]bool)
+	for _, item := range strings.Split(input, ",") {
+		item = strings.TrimSpace(item)
+		if seen[item] {
+			return true
+		}
+		seen[item] = true
 	}
-
-	dfa := nfa.ConvertToDfa()
-
-	dfa.Print()
+	return false
 }
