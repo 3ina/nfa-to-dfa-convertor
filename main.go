@@ -122,6 +122,29 @@ func main() {
 		SetTitle("Step 3: Define Transitions").
 		SetTitleAlign(tview.AlignLeft)
 
+	// form for start state
+
+	formStart := tview.NewForm().
+		AddInputField("Start State", "", 20, nil, func(text string) {
+			startState = text
+		}).
+		AddButton("Next", func() {
+			if startState == "" {
+				showError(pages, "Please enter a start state.")
+				return
+			}
+			pages.SwitchToPage("FinalStates")
+		}).
+		AddButton("Back", func() {
+			pages.SwitchToPage("Transitions")
+		}).
+		AddButton("Cancel", func() {
+			app.Stop()
+		})
+
+	formStart.SetBorder(true).
+		SetTitle("Step 4: Define Start State").
+		SetTitleAlign(tview.AlignLeft)
 }
 
 func showError(pages *tview.Pages, message string) {
