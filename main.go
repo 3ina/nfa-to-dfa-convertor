@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/rivo/tview"
 	"strings"
 )
 
@@ -36,9 +37,36 @@ func main() {
 	//
 	//dfa.Print()
 
-	//var states, alphabet , transitions, startState,finalStates string
+	app := tview.NewApplication()
+	var states, alphabet, transitions, startState, finalStates string
 
-	//pages := tview.NewPages()
+	pages := tview.NewPages()
+
+	//page 1 for state input
+	formStates := tview.NewForm().
+		AddInputField("States (comma-seprated)",
+			"", 30, nil, func(text string) {
+				states = text
+			}).
+		AddButton("Next", func() {
+			if states == "" {
+				showError(pages, "Please enter at least one state.")
+				return
+			}
+			if checkDuplicates(states) {
+				showError(pages, "Duplicate states found. Please ensure all states are unique.")
+				return
+			}
+			pages.SwitchToPage("Alphabet")
+		}).
+		AddButton("Cancel", func() {
+			app.Stop()
+		})
+
+	formStates.SetBorder(true).
+		SetTitle("Step 1: Define States").
+		SetTitleAlign(tview.AlignLeft)
+
 }
 
 func checkDuplicates(input string) bool {
