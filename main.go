@@ -67,6 +67,7 @@ func main() {
 		SetTitle("Step 1: Define States").
 		SetTitleAlign(tview.AlignLeft)
 
+	//page 2 for alphabet input
 	formAlphabet := tview.NewForm().
 		AddInputField("Alphabet (comma-separated, e.g., a,b)", "", 30, nil, func(text string) {
 			alphabet = text
@@ -114,6 +115,18 @@ func checkDuplicates(input string) bool {
 			return true
 		}
 		seen[item] = true
+	}
+	return false
+}
+
+func hasDuplicateTransitions(input string) bool {
+	seen := make(map[string]bool)
+	for _, transition := range strings.Split(input, ";") {
+		transition = strings.TrimSpace(transition)
+		if seen[transition] {
+			return true
+		}
+		seen[transition] = true
 	}
 	return false
 }
