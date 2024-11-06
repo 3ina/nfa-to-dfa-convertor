@@ -67,6 +67,33 @@ func main() {
 		SetTitle("Step 1: Define States").
 		SetTitleAlign(tview.AlignLeft)
 
+	formAlphabet := tview.NewForm().
+		AddInputField("Alphabet (comma-separated, e.g., a,b)", "", 30, nil, func(text string) {
+			alphabet = text
+		}).
+		AddButton("Next", func() {
+			if alphabet == "" {
+				showError(pages, "Please enter at least one symbol in the alphabet.")
+				return
+			}
+			if checkDuplicates(alphabet) {
+				showError(pages, "Duplicate symbols in the alphabet. Please ensure all symbols are unique.")
+				return
+			}
+			pages.SwitchToPage("Transitions")
+		}).
+		AddButton("Back", func() {
+			pages.SwitchToPage("States")
+		}).
+		AddButton("Cancel", func() {
+			app.Stop()
+		})
+
+	formAlphabet.
+		SetBorder(true).
+		SetTitle("Step 2: Define Alphabet").
+		SetTitleAlign(tview.AlignLeft)
+
 }
 
 func showError(pages *tview.Pages, message string) {
