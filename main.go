@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/rivo/tview"
 	"strings"
 )
@@ -174,6 +175,56 @@ func main() {
 		SetBorder(true).
 		SetTitle("Step 5: Define Final States").
 		SetTitleAlign(tview.AlignLeft)
+
+	// Page 6 summary about nfa and
+
+	summary := tview.
+		NewTextView().
+		SetDynamicColors(true).
+		SetWrap(true)
+
+	summary.
+		SetBorder(true).
+		SetTitle("NFA Summary").
+		SetTitleAlign(tview.AlignLeft)
+
+	confirmForm := tview.NewForm().
+		AddButton("Confirm", func() {
+			fmt.Println("NFA Details:")
+			fmt.Printf("States: %s\nAlphabet: %s\nTransitions: %s\nStart State: %s\nFinal States: %s\n",
+				states, alphabet, transitions, startState, finalStates)
+			app.Stop() // End the app after submission
+		}).
+		AddButton("Back", func() {
+			pages.SwitchToPage("FinalStates")
+		}).
+		AddButton("Cancel", func() {
+			app.Stop()
+		})
+
+	// Layout for Summary Page
+	summaryLayout := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(summary, 0, 1, false).
+		AddItem(confirmForm, 3, 1, true)
+
+	confirmForm.AddButton("Show Summary", func() {
+		summary.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
+			states, alphabet, transitions, startState, finalStates))
+		pages.SwitchToPage("Summary")
+	})
+
+	pages.AddPage("States", formStates, true, true)
+	pages.AddPage("Alphabet", formAlphabet, true, false)
+	pages.AddPage("Transitions", formTransitions, true, false)
+	pages.AddPage("StartState", formStart, true, false)
+	pages.AddPage("FinalStates", formFinal, true, false)
+	pages.AddPage("Summary", summaryLayout, true, false)
+
+	// Run the application
+	if err := app.SetRoot(pages, true).Run(); err != nil {
+		panic(err)
+	}
+
 }
 
 func showError(pages *tview.Pages, message string) {
