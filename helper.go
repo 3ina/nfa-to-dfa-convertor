@@ -47,3 +47,12 @@ func isValidState(state string, states []string) bool {
 	}
 	return false
 }
+
+func isValidAlphabet(symbol string, alphabet []string) bool {
+	for _, a := range alphabet {
+		if a == symbol {
+			return true
+		}
+	}
+	return false
+}
