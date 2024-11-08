@@ -38,3 +38,12 @@ func hasDuplicateTransitions(input string) bool {
 	}
 	return false
 }
+
+func isValidState(state string, states []string) bool {
+	for _, s := range states {
+		if s == state {
+			return true
+		}
+	}
+	return false
+}
