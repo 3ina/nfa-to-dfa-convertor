@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/rivo/tview"
+	"strings"
 )
 
 func SummeryFlexInit(pages *tview.Pages,
@@ -11,7 +12,7 @@ func SummeryFlexInit(pages *tview.Pages,
 	alphabet,
 	transitions,
 	startState,
-	finalStates string) *tview.Flex {
+	finalStates *string) *tview.Flex {
 	summary := tview.
 		NewTextView().
 		SetDynamicColors(true).
@@ -43,13 +44,13 @@ func SummeryFlexInit(pages *tview.Pages,
 
 	confirmForm.AddButton("Show Summary", func() {
 		summary.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
-			states, alphabet, transitions, startState, finalStates))
+			*states, *alphabet, *transitions, *startState, *finalStates))
 		pages.SwitchToPage("Summary")
 	})
 	return summaryLayout
 }
 
-func FinalStatesFormInit(pages *tview.Pages, finalStates *string, app *tview.Application) *tview.Form {
+func FinalStatesFormInit(pages *tview.Pages, states *[]string, finalStates *string, app *tview.Application) *tview.Form {
 	formFinal := tview.NewForm().
 		AddInputField("Final States (comma-separated)", "", 30, nil, func(text string) {
 			*finalStates = text
@@ -63,6 +64,13 @@ func FinalStatesFormInit(pages *tview.Pages, finalStates *string, app *tview.App
 				showError(pages, "Duplicate final states found. Please ensure all final states are unique.")
 				return
 			}
+			for _, s := range strings.Split(*finalStates, ",") {
+				if !isValidState(s, *states) {
+					showError(pages, fmt.Sprintf("Invalid state: %s", s))
+					return
+				}
+			}
+
 			pages.SwitchToPage("Summary")
 		}).
 		AddButton("Back", func() {
@@ -80,7 +88,7 @@ func FinalStatesFormInit(pages *tview.Pages, finalStates *string, app *tview.App
 	return formFinal
 }
 
-func StartStateFormInit(pages *tview.Pages, startState *string, app *tview.Application) *tview.Form {
+func StartStateFormInit(pages *tview.Pages, states *[]string, startState *string, app *tview.Application) *tview.Form {
 	formStartState := tview.NewForm().
 		AddInputField("Start State", "", 20, nil, func(text string) {
 			*startState = text
@@ -88,6 +96,10 @@ func StartStateFormInit(pages *tview.Pages, startState *string, app *tview.Appli
 		AddButton("Next", func() {
 			if *startState == "" {
 				showError(pages, "Please enter a start state.")
+				return
+			}
+			if !isValidState(strings.TrimSpace(*startState), *states) {
+				showError(pages, fmt.Sprintf("Invalid state: %s", *startState))
 				return
 			}
 			pages.SwitchToPage("FinalStates")
@@ -106,7 +118,7 @@ func StartStateFormInit(pages *tview.Pages, startState *string, app *tview.Appli
 	return formStartState
 }
 
-func TransitionsFormInit(pages *tview.Pages, transitions *string, app *tview.Application) *tview.Form {
+func TransitionsFormInit(pages *tview.Pages, alphabet *[]string, states *[]string, transitions *string, app *tview.Application) *tview.Form {
 
 	formTransitions := tview.NewForm().
 		AddInputField("Transitions (e.g., S0,a->S1; S0,ε->S2)", "", 50, nil, func(text string) {
@@ -121,6 +133,34 @@ func TransitionsFormInit(pages *tview.Pages, transitions *string, app *tview.App
 				showError(pages, "Duplicate transitions found. Please ensure all transitions are unique.")
 				return
 			}
+
+			for _, transition := range strings.Split(*transitions, ";") {
+				parts := strings.Split(transition, "->")
+				if len(parts) != 2 {
+					showError(pages, "Invalid transition format.")
+					return
+				}
+				fromStateInput := strings.Split(parts[0], ",")
+				fromState, input := strings.TrimSpace(fromStateInput[0]), strings.TrimSpace(fromStateInput[1])
+
+				if !isValidState(fromState, *states) {
+					showError(pages, fmt.Sprintf("Invalid state in transition: %s", fromState))
+					showError(pages, fmt.Sprintf("Invalid state arr in transition: %s", *states))
+
+					return
+				}
+				if !isValidAlphabet(input, *alphabet) {
+					showError(pages, fmt.Sprintf("Invalid alphabet symbol in transition: %s", input))
+					return
+				}
+
+				toState := strings.TrimSpace(parts[1])
+				if !isValidState(toState, *states) {
+					showError(pages, fmt.Sprintf("Invalid target state in transition: %s", toState))
+					return
+				}
+			}
+
 			pages.SwitchToPage("StartState")
 		}).
 		AddButton("Back", func() {
@@ -137,11 +177,12 @@ func TransitionsFormInit(pages *tview.Pages, transitions *string, app *tview.App
 	return formTransitions
 }
 
-func AlphabetFormInit(pages *tview.Pages, alphabet *string, app *tview.Application) *tview.Form {
+func AlphabetFormInit(pages *tview.Pages, alphabet *string, alphabetArr *[]string, app *tview.Application) *tview.Form {
 
 	formAlphabet := tview.NewForm().
 		AddInputField("Alphabet (comma-separated, e.g., a,b)", "", 30, nil, func(text string) {
 			*alphabet = text
+			*alphabetArr = strings.Split(text, ",")
 		}).
 		AddButton("Next", func() {
 			if *alphabet == "" {
@@ -169,12 +210,13 @@ func AlphabetFormInit(pages *tview.Pages, alphabet *string, app *tview.Applicati
 	return formAlphabet
 }
 
-func StatesFormInit(pages *tview.Pages, states *string, app *tview.Application) *tview.Form {
+func StatesFormInit(pages *tview.Pages, states *string, stateArr *[]string, app *tview.Application) *tview.Form {
 
 	formStates := tview.NewForm().
 		AddInputField("States (comma-seprated)",
 			"", 30, nil, func(text string) {
 				*states = text
+				*stateArr = strings.Split(text, ",")
 			}).
 		AddButton("Next", func() {
 			if *states == "" {
