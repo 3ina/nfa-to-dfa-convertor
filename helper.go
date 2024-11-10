@@ -67,3 +67,8 @@ func validateCommaSeparatedAlphabet(input string) bool {
 	matched, _ := regexp.MatchString(`^[a-zA-Z](,[a-zA-Z])*$`, input)
 	return matched
 }
+
+func validateTransitionFormat(input string) bool {
+	matched, _ := regexp.MatchString(`^(\w+,[a-zA-Zε]->\w+)(;\s*\w+,[a-zA-Zε]->\w+)*$`, input)
+	return matched
+}
