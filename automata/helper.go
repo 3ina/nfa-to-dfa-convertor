@@ -12,6 +12,16 @@ type Transition struct {
 	To    []*State
 }
 
+func FindState(name string, states []*State) *State {
+	for _, state := range states {
+		if state.Name == name {
+			return state
+		}
+	}
+
+	return nil
+}
+
 func contains(states []*State, target *State) bool {
 	for _, state := range states {
 		if state == target {
