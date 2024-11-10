@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/rivo/tview"
+	"regexp"
 	"strings"
 )
 
@@ -55,4 +56,9 @@ func isValidAlphabet(symbol string, alphabet []string) bool {
 		}
 	}
 	return false
+}
+
+func validateCommaSeparatedWords(input string) bool {
+	matched, _ := regexp.MatchString(`^(\w+)(,\w+)*$`, input)
+	return matched
 }
