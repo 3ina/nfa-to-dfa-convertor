@@ -62,3 +62,8 @@ func validateCommaSeparatedWords(input string) bool {
 	matched, _ := regexp.MatchString(`^(\w+)(,\w+)*$`, input)
 	return matched
 }
+
+func validateCommaSeparatedAlphabet(input string) bool {
+	matched, _ := regexp.MatchString(`^[a-zA-Z](,[a-zA-Z])*$`, input)
+	return matched
+}
