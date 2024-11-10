@@ -122,6 +122,10 @@ func TransitionsFormInit(pages *tview.Pages, alphabet *[]string, states *[]strin
 
 	formTransitions := tview.NewForm().
 		AddInputField("Transitions (e.g., S0,a->S1; S0,ε->S2)", "", 50, nil, func(text string) {
+			if !validateTransitionFormat(text) {
+				showError(pages, "Invalid format. Transitions must follow the pattern S0,a->S1; S0,ε->S2.")
+				return
+			}
 			*transitions = text
 		}).
 		AddButton("Next", func() {
@@ -181,6 +185,10 @@ func AlphabetFormInit(pages *tview.Pages, alphabet *string, alphabetArr *[]strin
 
 	formAlphabet := tview.NewForm().
 		AddInputField("Alphabet (comma-separated, e.g., a,b)", "", 30, nil, func(text string) {
+			if !validateCommaSeparatedAlphabet(text) {
+				showError(pages, "Invalid format. Alphabet must be single letters separated by commas (e.g., a,b).")
+				return
+			}
 			*alphabet = text
 			*alphabetArr = strings.Split(text, ",")
 		}).
@@ -215,6 +223,10 @@ func StatesFormInit(pages *tview.Pages, states *string, stateArr *[]string, app 
 	formStates := tview.NewForm().
 		AddInputField("States (comma-seprated)",
 			"", 30, nil, func(text string) {
+				if !validateCommaSeparatedWords(text) {
+					showError(pages, "Invalid format. States must be comma-separated alphanumeric values.")
+					return
+				}
 				*states = text
 				*stateArr = strings.Split(text, ",")
 			}).
