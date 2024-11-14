@@ -8,6 +8,58 @@ type NFA struct {
 	FinalStates []*State
 }
 
+func (nfa *NFA) AddTrapStateIfNeeded() {
+	needTrapState := false
+
+	for _, state := range nfa.States {
+		for _, symbol := range nfa.Alphabet {
+			hasTransition := false
+			for _, transition := range nfa.Transitions {
+				if transition.From == state && transition.Input == symbol {
+					hasTransition = true
+					break
+				}
+			}
+
+			if !hasTransition {
+				needTrapState = true
+				break
+			}
+		}
+
+		if needTrapState {
+			break
+		}
+	}
+
+	if needTrapState {
+		trapState := &State{Name: "trap"}
+		nfa.States = append(nfa.States, trapState)
+
+		for _, state := range nfa.States {
+			for _, symbol := range nfa.Alphabet {
+				hasTransition := false
+				for _, transition := range nfa.Transitions {
+					if transition.From == state && transition.Input == symbol {
+						hasTransition = true
+						break
+					}
+
+				}
+
+				if !hasTransition {
+					newTransition := Transition{
+						From:  state,
+						Input: symbol,
+						To:    []*State{trapState},
+					}
+					nfa.Transitions = append(nfa.Transitions, newTransition)
+				}
+			}
+		}
+	}
+}
+
 func (nfa *NFA) epsilonClosure(states []*State) []*State {
 	closure := make([]*State, 0)
 	visited := make(map[*State]bool)
