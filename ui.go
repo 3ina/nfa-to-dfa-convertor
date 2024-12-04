@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/3ina/nfa-to-dfa-convertor/automata"
 	"github.com/rivo/tview"
 	"strings"
 )
@@ -12,7 +13,9 @@ func SummeryFlexInit(pages *tview.Pages,
 	alphabet,
 	transitions,
 	startState,
-	finalStates *string) *tview.Flex {
+	finalStates *string,
+	nfaInput *automata.NFA,
+	dfaResult *automata.DFA) *tview.Flex {
 	summary := tview.
 		NewTextView().
 		SetDynamicColors(true).
@@ -23,12 +26,25 @@ func SummeryFlexInit(pages *tview.Pages,
 		SetTitle("NFA Summary").
 		SetTitleAlign(tview.AlignLeft)
 
+	summarydfa := tview.
+		NewTextView().
+		SetDynamicColors(true).
+		SetWrap(true)
+
+	summarydfa.
+		SetBorder(true).
+		SetTitle("DFA Summary").
+		SetTitleAlign(tview.AlignLeft)
+
 	confirmForm := tview.NewForm().
 		AddButton("Confirm", func() {
-			fmt.Println("NFA Details:")
-			fmt.Printf("States: %s\nAlphabet: %s\nTransitions: %s\nStart State: %s\nFinal States: %s\n",
-				states, alphabet, transitions, startState, finalStates)
-			app.Stop() // End the app after submission
+			*nfaInput = *parseNFA(*states, *alphabet, *transitions, *startState, *finalStates)
+			nfaInput.AddTrapStateIfNeeded()
+			*dfaResult = *nfaInput.ConvertToDfa()
+
+			summarydfa.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
+				formatStates(dfaResult.States), formatAlphabet(dfaResult.Alphabet), formatTransitions(dfaResult.Transitions), dfaResult.StartState.Name, formatStates(dfaResult.FinalStates)))
+
 		}).
 		AddButton("Back", func() {
 			pages.SwitchToPage("FinalStates")
@@ -37,14 +53,21 @@ func SummeryFlexInit(pages *tview.Pages,
 			app.Stop()
 		})
 
-	// Layout for Summary Page
 	summaryLayout := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(summary, 0, 1, false).
+		AddItem(summarydfa, 0, 1, false).
 		AddItem(confirmForm, 3, 1, true)
 
 	confirmForm.AddButton("Show Summary", func() {
+
+		if nfaInput.StartState == nil || len(nfaInput.States) == 0 || len(nfaInput.Alphabet) == 0 || len(nfaInput.FinalStates) == 0 {
+			summary.SetText("[red]Error: NFA data is incomplete or uninitialized.")
+			return
+		}
+
 		summary.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
-			*states, *alphabet, *transitions, *startState, *finalStates))
+			formatStates(nfaInput.States), formatAlphabet(nfaInput.Alphabet), formatTransitionsNfa(nfaInput.Transitions), nfaInput.StartState.Name, formatStates(nfaInput.FinalStates)))
+
 		pages.SwitchToPage("Summary")
 	})
 	return summaryLayout
@@ -122,13 +145,14 @@ func TransitionsFormInit(pages *tview.Pages, alphabet *[]string, states *[]strin
 
 	formTransitions := tview.NewForm().
 		AddInputField("Transitions (e.g., S0,a->S1; S0,ε->S2)", "", 50, nil, func(text string) {
-			if !validateTransitionFormat(text) {
-				showError(pages, "Invalid format. Transitions must follow the pattern S0,a->S1; S0,ε->S2.")
-				return
-			}
+
 			*transitions = text
 		}).
 		AddButton("Next", func() {
+			if !validateTransitionFormat(*transitions) {
+				showError(pages, "Invalid format. Transitions must follow the pattern S0,a->S1; S0,ε->S2.")
+				return
+			}
 			if *transitions == "" {
 				showError(pages, "Please enter at least one transition.")
 				return
@@ -185,14 +209,15 @@ func AlphabetFormInit(pages *tview.Pages, alphabet *string, alphabetArr *[]strin
 
 	formAlphabet := tview.NewForm().
 		AddInputField("Alphabet (comma-separated, e.g., a,b)", "", 30, nil, func(text string) {
-			if !validateCommaSeparatedAlphabet(text) {
-				showError(pages, "Invalid format. Alphabet must be single letters separated by commas (e.g., a,b).")
-				return
-			}
+
 			*alphabet = text
 			*alphabetArr = strings.Split(text, ",")
 		}).
 		AddButton("Next", func() {
+			if !validateCommaSeparatedAlphabet(*alphabet) {
+				showError(pages, "Invalid format. Alphabet must be single letters separated by commas (e.g., a,b).")
+				return
+			}
 			if *alphabet == "" {
 				showError(pages, "Please enter at least one symbol in the alphabet.")
 				return
@@ -223,16 +248,16 @@ func StatesFormInit(pages *tview.Pages, states *string, stateArr *[]string, app 
 	formStates := tview.NewForm().
 		AddInputField("States (comma-seprated)",
 			"", 30, nil, func(text string) {
-				if !validateCommaSeparatedWords(text) {
-					showError(pages, "Invalid format. States must be comma-separated alphanumeric values.")
-					return
-				}
 				*states = text
 				*stateArr = strings.Split(text, ",")
 			}).
 		AddButton("Next", func() {
 			if *states == "" {
 				showError(pages, "Please enter at least one state.")
+				return
+			}
+			if !validateCommaSeparatedWords(*states) {
+				showError(pages, "Invalid format. States must be comma-separated alphanumeric values.")
 				return
 			}
 			if checkDuplicates(*states) {

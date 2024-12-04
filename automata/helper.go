@@ -52,9 +52,15 @@ func unionSets(a, b []*State) []*State {
 }
 
 func stateSetName(states []*State) string {
-	names := []string{}
+	if states == nil || len(states) == 0 {
+		return ""
+	}
+	var names []string
 
 	for _, state := range states {
+		if state == nil {
+			continue
+		}
 		names = append(names, state.Name)
 	}
 	sort.Strings(names)

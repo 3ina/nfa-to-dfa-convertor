@@ -1,43 +1,31 @@
 package main
 
 import (
+	"fmt"
+	"github.com/3ina/nfa-to-dfa-convertor/automata"
 	"github.com/rivo/tview"
 )
 
 func main() {
-	//s0 := &automata.State{Name: "S0"}
-	//s1 := &automata.State{Name: "S1"}
-	//s2 := &automata.State{Name: "S2"}
-	//s3 := &automata.State{Name: "S3"}
-	//s4 := &automata.State{Name: "S4"}
-	//s5 := &automata.State{Name: "S5"}
-	//s6 := &automata.State{Name: "S6"}
-	//s7 := &automata.State{Name: "S7"}
-	//s8 := &automata.State{Name: "S8"}
-	//
-	//nfa := automata.NFA{
-	//	States:   []*automata.State{s0, s1, s2, s3, s4, s5, s6, s7, s8},
-	//	Alphabet: []rune{'a', 'b'},
-	//	Transitions: []automata.Transition{
-	//		{From: s0, Input: 'ε', To: []*automata.State{s1, s7}},
-	//		{From: s1, Input: 'ε', To: []*automata.State{s2, s4}},
-	//		{From: s2, Input: 'a', To: []*automata.State{s3}},
-	//		{From: s4, Input: 'b', To: []*automata.State{s5}},
-	//		{From: s5, Input: 'ε', To: []*automata.State{s6}},
-	//		{From: s3, Input: 'ε', To: []*automata.State{s6}},
-	//		{From: s6, Input: 'ε', To: []*automata.State{s1, s7}},
-	//		{From: s7, Input: 'a', To: []*automata.State{s1, s8}},
-	//	},
-	//	StartState:  s0,
-	//	FinalStates: []*automata.State{s8},
-	//}
-	//
-	//dfa := nfa.ConvertToDfa()
-	//
-	//dfa.Print()
 
-	app := tview.NewApplication().EnableMouse(true)
+	//ε
+
+	app := tview.NewApplication().EnableMouse(true).EnablePaste(true)
 	var states, alphabet, transitions, startState, finalStates string
+	nfaInput := &automata.NFA{
+		States:      nil,
+		Alphabet:    nil,
+		Transitions: nil,
+		StartState:  nil,
+		FinalStates: nil,
+	}
+	dfaResult := &automata.DFA{
+		States:      nil,
+		Alphabet:    nil,
+		Transitions: nil,
+		StartState:  nil,
+		FinalStates: nil,
+	}
 	var statesArr []string
 	var alphabetArr []string
 	pages := tview.NewPages()
@@ -54,7 +42,7 @@ func main() {
 	formFinalStates := FinalStatesFormInit(pages, &statesArr, &finalStates, app)
 	// Page 6 summary about nfa and
 	summaryLayout := SummeryFlexInit(pages, app, &states, &alphabet,
-		&transitions, &states, &finalStates)
+		&transitions, &states, &finalStates, nfaInput, dfaResult)
 
 	pages.AddPage("States", formStates, true, true)
 	pages.AddPage("Alphabet", formAlphabet, true, false)
@@ -66,7 +54,7 @@ func main() {
 
 	// Run the application
 	if err := app.SetRoot(pages, true).Run(); err != nil {
-		panic(err)
+		fmt.Printf(err.Error())
 	}
 
 }
