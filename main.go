@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/3ina/nfa-to-dfa-convertor/automata"
 	"github.com/rivo/tview"
 )
 
@@ -12,20 +11,7 @@ func main() {
 
 	app := tview.NewApplication().EnableMouse(true).EnablePaste(true)
 	var states, alphabet, transitions, startState, finalStates string
-	nfaInput := &automata.NFA{
-		States:      nil,
-		Alphabet:    nil,
-		Transitions: nil,
-		StartState:  nil,
-		FinalStates: nil,
-	}
-	dfaResult := &automata.DFA{
-		States:      nil,
-		Alphabet:    nil,
-		Transitions: nil,
-		StartState:  nil,
-		FinalStates: nil,
-	}
+
 	var statesArr []string
 	var alphabetArr []string
 	pages := tview.NewPages()
@@ -42,7 +28,7 @@ func main() {
 	formFinalStates := FinalStatesFormInit(pages, &statesArr, &finalStates, app)
 	// Page 6 summary about nfa and
 	summaryLayout := SummeryFlexInit(pages, app, &states, &alphabet,
-		&transitions, &states, &finalStates, nfaInput, dfaResult)
+		&transitions, &startState, &finalStates)
 
 	pages.AddPage("States", formStates, true, true)
 	pages.AddPage("Alphabet", formAlphabet, true, false)

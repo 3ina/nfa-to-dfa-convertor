@@ -94,7 +94,7 @@ func parseNFA(statesStr, alphabetStr, transitionsStr, startStateStr, finalStateS
 	// add start state
 	var startState *automata.State
 	for _, state := range states {
-		if state.Name == strings.TrimSpace(startStateStr) {
+		if strings.TrimSpace(state.Name) == strings.TrimSpace(startStateStr) {
 			startState = state
 		}
 	}
@@ -104,8 +104,8 @@ func parseNFA(statesStr, alphabetStr, transitionsStr, startStateStr, finalStateS
 	var finalStates []*automata.State
 	for _, fState := range finalStatesArr {
 		for _, state := range states {
-			if strings.TrimSpace(fState) == state.Name {
-				finalStates = append(finalStates, startState)
+			if strings.TrimSpace(fState) == strings.TrimSpace(state.Name) {
+				finalStates = append(finalStates, state)
 			}
 		}
 	}

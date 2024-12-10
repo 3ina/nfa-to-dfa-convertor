@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/3ina/nfa-to-dfa-convertor/automata"
 	"github.com/rivo/tview"
 	"strings"
 )
@@ -13,9 +12,7 @@ func SummeryFlexInit(pages *tview.Pages,
 	alphabet,
 	transitions,
 	startState,
-	finalStates *string,
-	nfaInput *automata.NFA,
-	dfaResult *automata.DFA) *tview.Flex {
+	finalStates *string) *tview.Flex {
 	summary := tview.
 		NewTextView().
 		SetDynamicColors(true).
@@ -38,13 +35,17 @@ func SummeryFlexInit(pages *tview.Pages,
 
 	confirmForm := tview.NewForm().
 		AddButton("Confirm", func() {
-			*nfaInput = *parseNFA(*states, *alphabet, *transitions, *startState, *finalStates)
-			nfaInput.AddTrapStateIfNeeded()
-			*dfaResult = *nfaInput.ConvertToDfa()
+
+			parsedNFA := parseNFA(*states, *alphabet, *transitions, *startState, *finalStates)
+			parsedNFA.AddTrapStateIfNeeded()
+
+			summary.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
+				parsedNFA.States, parsedNFA.Alphabet, parsedNFA.Transitions, parsedNFA.StartState, parsedNFA.FinalStates))
+
+			dfa := parsedNFA.ConvertToDfa()
 
 			summarydfa.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
-				formatStates(dfaResult.States), formatAlphabet(dfaResult.Alphabet), formatTransitions(dfaResult.Transitions), dfaResult.StartState.Name, formatStates(dfaResult.FinalStates)))
-
+				formatStates(dfa.States), formatAlphabet(dfa.Alphabet), formatTransitions(dfa.Transitions), dfa.StartState.Name, formatStates(dfa.FinalStates)))
 		}).
 		AddButton("Back", func() {
 			pages.SwitchToPage("FinalStates")
@@ -60,13 +61,8 @@ func SummeryFlexInit(pages *tview.Pages,
 
 	confirmForm.AddButton("Show Summary", func() {
 
-		if nfaInput.StartState == nil || len(nfaInput.States) == 0 || len(nfaInput.Alphabet) == 0 || len(nfaInput.FinalStates) == 0 {
-			summary.SetText("[red]Error: NFA data is incomplete or uninitialized.")
-			return
-		}
-
 		summary.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
-			formatStates(nfaInput.States), formatAlphabet(nfaInput.Alphabet), formatTransitionsNfa(nfaInput.Transitions), nfaInput.StartState.Name, formatStates(nfaInput.FinalStates)))
+			*states, *alphabet, *transitions, *startState, *finalStates))
 
 		pages.SwitchToPage("Summary")
 	})
