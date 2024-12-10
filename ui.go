@@ -39,9 +39,6 @@ func SummeryFlexInit(pages *tview.Pages,
 			parsedNFA := parseNFA(*states, *alphabet, *transitions, *startState, *finalStates)
 			parsedNFA.AddTrapStateIfNeeded()
 
-			summary.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
-				parsedNFA.States, parsedNFA.Alphabet, parsedNFA.Transitions, parsedNFA.StartState, parsedNFA.FinalStates))
-
 			dfa := parsedNFA.ConvertToDfa()
 
 			summarydfa.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
