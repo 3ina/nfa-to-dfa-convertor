@@ -76,58 +76,71 @@ func validateTransitionFormat(input string) bool {
 	return matched
 }
 
-func parseNFA(statesStr, alphabetStr, transitionsStr, startStateStr, finalStateStr string) *automata.NFA {
-
-	// create states arr
-	statesName := strings.Split(statesStr, ",")
-	states := make([]*automata.State, len(statesName))
-	for i, name := range statesName {
+func parseNFA(statesStr, alphabetStr, transitionsStr, startStateStr, finalStatesStr string) *automata.NFA {
+	// Create states
+	statesNames := strings.Split(statesStr, ",")
+	states := make([]*automata.State, len(statesNames))
+	for i, name := range statesNames {
 		states[i] = &automata.State{Name: strings.TrimSpace(name)}
 	}
 
-	// alphabet
-	alphabetArr := strings.Split(alphabetStr, ",")
-	alphabet := make([]rune, len(alphabetArr))
-	for i, ch := range alphabetArr {
-		alphabet[i] = rune(strings.TrimSpace(ch)[0])
-	}
+	// Create alphabet
+	alphabet := strings.Split(alphabetStr, ",")
 
-	// add start state
+	// Find start state
 	var startState *automata.State
 	for _, state := range states {
-		if strings.TrimSpace(state.Name) == strings.TrimSpace(startStateStr) {
+		if state.Name == strings.TrimSpace(startStateStr) {
 			startState = state
+			break
 		}
 	}
 
-	// add final states
-	finalStatesArr := strings.Split(finalStateStr, ",")
+	// Find final states
+	finalStatesArr := strings.Split(finalStatesStr, ",")
 	var finalStates []*automata.State
-	for _, fState := range finalStatesArr {
+	for _, finalStateName := range finalStatesArr {
 		for _, state := range states {
-			if strings.TrimSpace(fState) == strings.TrimSpace(state.Name) {
+			if state.Name == strings.TrimSpace(finalStateName) {
 				finalStates = append(finalStates, state)
 			}
 		}
 	}
 
-	// add transitions
-	var transitions []automata.Transition
+	// Parse transitions
+	transitions := []automata.Transition{}
 	transitionsArr := strings.Split(transitionsStr, ";")
 	for _, transitionStr := range transitionsArr {
-		splitInput := strings.Split(transitionStr, "->")
-		startStateName := strings.Split(splitInput[0], ",")[0]
-		startState := automata.FindState(startStateName, states)
-		char := strings.Split(splitInput[0], ",")[1]
-		endStateName := splitInput[1]
-		endState := automata.FindState(endStateName, states)
+		parts := strings.Split(transitionStr, "->")
+		if len(parts) != 2 {
+			fmt.Printf("Invalid transition format: %s\n", transitionStr)
+			continue
+		}
+		inputParts := strings.Split(parts[0], ",")
+		if len(inputParts) != 2 {
+			fmt.Printf("Invalid transition format: %s\n", transitionStr)
+			continue
+		}
+
+		fromStateName := strings.TrimSpace(inputParts[0])
+		input := strings.TrimSpace(inputParts[1])
+		toStateName := strings.TrimSpace(parts[1])
+
+		fromState := findState(fromStateName, states)
+		toState := findState(toStateName, states)
+		if fromState == nil || toState == nil {
+			fmt.Printf("State not found in transition: %s\n", transitionStr)
+			continue
+		}
+
 		transitions = append(transitions, automata.Transition{
-			From:  startState,
-			Input: rune(char[0]),
-			To:    []*automata.State{endState},
+			From:  fromState,
+			Input: input,
+			To:    []*automata.State{toState},
 		})
 	}
 
+	// Return the parsed NFA
 	return &automata.NFA{
 		States:      states,
 		Alphabet:    alphabet,
@@ -136,6 +149,76 @@ func parseNFA(statesStr, alphabetStr, transitionsStr, startStateStr, finalStateS
 		FinalStates: finalStates,
 	}
 }
+
+func findState(name string, states []*automata.State) *automata.State {
+	for _, state := range states {
+		if state.Name == name {
+			return state
+		}
+	}
+	return nil
+}
+
+//func parseNFA(statesStr, alphabetStr, transitionsStr, startStateStr, finalStateStr string) *automata.NFA {
+//
+//	// create states arr
+//	statesName := strings.Split(statesStr, ",")
+//	states := make([]*automata.State, len(statesName))
+//	for i, name := range statesName {
+//		states[i] = &automata.State{Name: strings.TrimSpace(name)}
+//	}
+//
+//	// alphabet
+//	alphabetArr := strings.Split(alphabetStr, ",")
+//	alphabet := make([]string, len(alphabetArr))
+//	for i, ch := range alphabetArr {
+//		alphabet[i] = strconv.Itoa(int(strings.TrimSpace(ch)[0]))
+//	}
+//
+//	// add start state
+//	var startState *automata.State
+//	for _, state := range states {
+//		if strings.TrimSpace(state.Name) == strings.TrimSpace(startStateStr) {
+//			startState = state
+//		}
+//	}
+//
+//	// add final states
+//	finalStatesArr := strings.Split(finalStateStr, ",")
+//	var finalStates []*automata.State
+//	for _, fState := range finalStatesArr {
+//		for _, state := range states {
+//			if strings.TrimSpace(fState) == strings.TrimSpace(state.Name) {
+//				finalStates = append(finalStates, state)
+//			}
+//		}
+//	}
+//
+//	// add transitions
+//	var transitions []automata.Transition
+//	transitionsArr := strings.Split(transitionsStr, ";")
+//	for _, transitionStr := range transitionsArr {
+//		splitInput := strings.Split(transitionStr, "->")
+//		startStateName := strings.Split(splitInput[0], ",")[0]
+//		startState := automata.FindState(startStateName, states)
+//		char := strings.Split(splitInput[0], ",")[1]
+//		endStateName := splitInput[1]
+//		endState := automata.FindState(endStateName, states)
+//		transitions = append(transitions, automata.Transition{
+//			From:  startState,
+//			Input: strconv.Itoa(int(char[0])),
+//			To:    []*automata.State{endState},
+//		})
+//	}
+//
+//	return &automata.NFA{
+//		States:      states,
+//		Alphabet:    alphabet,
+//		Transitions: transitions,
+//		StartState:  startState,
+//		FinalStates: finalStates,
+//	}
+//}
 
 func formatStates(states []*automata.State) string {
 	var names []string
@@ -148,19 +231,19 @@ func formatStates(states []*automata.State) string {
 	return strings.Join(names, ", ")
 }
 
-func formatAlphabet(alphabet []rune) string {
+func formatAlphabet(alphabet []string) string {
 	var symbols []string
 	for _, r := range alphabet {
-		symbols = append(symbols, string(r))
+		symbols = append(symbols, r)
 	}
 	return strings.Join(symbols, ", ")
 }
 
-func formatTransitions(transitions map[string]map[rune]string) string {
+func formatTransitions(transitions map[string]map[string]string) string {
 	var result []string
 	for from, inputs := range transitions {
 		for input, to := range inputs {
-			result = append(result, fmt.Sprintf("%s, %s -> %s", from, string(input), to))
+			result = append(result, fmt.Sprintf("%s, %s -> %s", from, input, to))
 		}
 	}
 	return strings.Join(result, "; ")

@@ -8,7 +8,7 @@ type State struct {
 
 type Transition struct {
 	From  *State
-	Input rune
+	Input string
 	To    []*State
 }
 
@@ -24,27 +24,24 @@ func FindState(name string, states []*State) *State {
 
 func contains(states []*State, target *State) bool {
 	for _, state := range states {
-		if state == target {
+		if state.Name == target.Name {
 			return true
 		}
 	}
-
 	return false
 }
 
 func unionSets(a, b []*State) []*State {
-	unique := make(map[*State]bool)
+	unique := make(map[string]*State)
 	for _, state := range a {
-		unique[state] = true
+		unique[state.Name] = state
 	}
-
 	for _, state := range b {
-		unique[state] = true
+		unique[state.Name] = state
 	}
 
 	var result []*State
-
-	for state := range unique {
+	for _, state := range unique {
 		result = append(result, state)
 	}
 
@@ -52,16 +49,11 @@ func unionSets(a, b []*State) []*State {
 }
 
 func stateSetName(states []*State) string {
-	if states == nil || len(states) == 0 {
-		return ""
-	}
 	var names []string
-
 	for _, state := range states {
-		if state == nil {
-			continue
+		if state != nil {
+			names = append(names, state.Name)
 		}
-		names = append(names, state.Name)
 	}
 	sort.Strings(names)
 	return "{" + join(names, ",") + "}"
@@ -80,11 +72,13 @@ func join(strs []string, sep string) string {
 }
 
 func containsAny(a []*State, b []*State) bool {
-	for _, stateA := range a {
-		for _, stateB := range b {
-			if stateA == stateB {
-				return true
-			}
+	stateSet := make(map[string]bool)
+	for _, state := range a {
+		stateSet[state.Name] = true
+	}
+	for _, state := range b {
+		if stateSet[state.Name] {
+			return true
 		}
 	}
 	return false
