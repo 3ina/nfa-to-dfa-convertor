@@ -2,7 +2,7 @@ package automata
 
 type NFA struct {
 	States      []*State
-	Alphabet    []rune
+	Alphabet    []string
 	Transitions []Transition
 	StartState  *State
 	FinalStates []*State
@@ -15,7 +15,7 @@ func (nfa *NFA) AddTrapStateIfNeeded() {
 		for _, symbol := range nfa.Alphabet {
 			hasTransition := false
 			for _, transition := range nfa.Transitions {
-				if transition.From == state && transition.Input == symbol {
+				if transition.From.Name == state.Name && transition.Input == symbol {
 					hasTransition = true
 					break
 				}
@@ -40,7 +40,7 @@ func (nfa *NFA) AddTrapStateIfNeeded() {
 			for _, symbol := range nfa.Alphabet {
 				hasTransition := false
 				for _, transition := range nfa.Transitions {
-					if transition.From == state && transition.Input == symbol {
+					if transition.From.Name == state.Name && transition.Input == symbol {
 						hasTransition = true
 						break
 					}
@@ -74,14 +74,14 @@ func (nfa *NFA) epsilonClosure(states []*State) []*State {
 		if !visited[state] {
 			visited[state] = true
 			closure = append(closure, state)
+
 			for _, t := range nfa.Transitions {
-				if t.From == state && t.Input == 'ε' {
+				if t.From.Name == state.Name && t.Input == "ε" {
 					for _, toState := range t.To {
 						if !visited[toState] {
 							stack = append(stack, toState)
 						}
 					}
-
 				}
 			}
 		}
@@ -90,11 +90,11 @@ func (nfa *NFA) epsilonClosure(states []*State) []*State {
 	return closure
 }
 
-func (nfa *NFA) move(states []*State, input rune) []*State {
+func (nfa *NFA) move(states []*State, input string) []*State {
 	result := make([]*State, 0)
 	for _, state := range states {
 		for _, t := range nfa.Transitions {
-			if t.From == state && t.Input == input {
+			if t.From.Name == state.Name && t.Input == input {
 				result = append(result, t.To...)
 			}
 		}
@@ -105,7 +105,7 @@ func (nfa *NFA) move(states []*State, input rune) []*State {
 func (nfa *NFA) ConvertToDfa() *DFA {
 	dfa := &DFA{
 		Alphabet:    nfa.Alphabet,
-		Transitions: make(map[string]map[rune]string),
+		Transitions: make(map[string]map[string]string),
 	}
 
 	stateMap := make(map[string]string)
@@ -125,13 +125,16 @@ func (nfa *NFA) ConvertToDfa() *DFA {
 		currentSet := queue[0]
 		queue = queue[1:]
 		currentName := stateSetName(currentSet)
+
 		for _, input := range nfa.Alphabet {
 			moved := nfa.move(currentSet, input)
+
 			closure := nfa.epsilonClosure(moved)
 			if len(closure) == 0 {
 				continue
 			}
 			newName := stateSetName(closure)
+
 			if _, exists := stateMap[newName]; !exists {
 				stateMap[newName] = newName
 				newState := &State{Name: newName}
@@ -143,10 +146,9 @@ func (nfa *NFA) ConvertToDfa() *DFA {
 			}
 
 			if dfa.Transitions[currentName] == nil {
-				dfa.Transitions[currentName] = make(map[rune]string)
+				dfa.Transitions[currentName] = make(map[string]string)
 			}
 			dfa.Transitions[currentName][input] = newName
-
 		}
 	}
 

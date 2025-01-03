@@ -43,6 +43,7 @@ func SummeryFlexInit(pages *tview.Pages,
 
 			summarydfa.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
 				formatStates(dfa.States), formatAlphabet(dfa.Alphabet), formatTransitions(dfa.Transitions), dfa.StartState.Name, formatStates(dfa.FinalStates)))
+
 		}).
 		AddButton("Back", func() {
 			pages.SwitchToPage("FinalStates")
@@ -57,7 +58,6 @@ func SummeryFlexInit(pages *tview.Pages,
 		AddItem(confirmForm, 3, 1, true)
 
 	confirmForm.AddButton("Show Summary", func() {
-
 		summary.SetText(fmt.Sprintf("[yellow]States:[-] %s\n[cyan]Alphabet:[-] %s\n[green]Transitions:[-] %s\n[red]Start State:[-] %s\n[blue]Final States:[-] %s",
 			*states, *alphabet, *transitions, *startState, *finalStates))
 
