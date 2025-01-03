@@ -166,3 +166,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/go,windows,intellij
+/main_without_ui.txt
