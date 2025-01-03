@@ -4,8 +4,8 @@ import "fmt"
 
 type DFA struct {
 	States      []*State
-	Alphabet    []rune
-	Transitions map[string]map[rune]string
+	Alphabet    []string
+	Transitions map[string]map[string]string
 	StartState  *State
 	FinalStates []*State
 }
