@@ -53,10 +53,11 @@ func isValidState(state string, states []string) bool {
 
 func isValidAlphabet(symbol string, alphabet []string) bool {
 	for _, a := range alphabet {
-		if a == symbol {
+		if a == symbol || symbol == "ε" {
 			return true
 		}
 	}
+
 	return false
 }
 
